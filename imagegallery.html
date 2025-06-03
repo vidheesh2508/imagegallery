@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Image Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Urbanist', sans-serif;
+      background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 2.7rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      padding: 0 40px 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .gallery-item {
+      position: relative;
+    }
+
+    .gallery img {
+      width: 100%;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.4s, box-shadow 0.4s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .gallery img:hover {
+      transform: scale(1.06);
+      box-shadow: 0 12px 36px rgba(0, 210, 255, 0.4);
+    }
+
+    .caption {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .gallery-item:hover .caption {
+      opacity: 1;
+    }
+
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      background: rgba(15, 32, 39, 0.8);
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .lightbox.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 15px;
+      box-shadow: 0 0 60px rgba(0, 210, 255, 0.2);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+      transform: translateY(-50%);
+      color: #ffffff;
+      font-size: 3rem;
+      cursor: pointer;
+    }
+
+    .controls span:hover {
+      color: #00d2ff;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2.5rem;
+      cursor: pointer;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .close:hover {
+      color: #ff3b3b;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      .controls span { font-size: 2rem; }
+      .close { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🖼️ Interactive Gallery</h1>
+
+<div class="gallery">
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1015/600/400" alt="Image 1">
+    <div class="caption">Mountain View</div>
+  </div>
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1016/600/400" alt="Image 2">
+    <div class="caption">Forest Path</div>
+  </div>
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1018/600/400" alt="Image 3">
+    <div class="caption">Lake Shore</div>
+  </div>
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1020/600/400" alt="Image 4">
+    <div class="caption">Evening Sky</div>
+  </div>
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1021/600/400" alt="Image 5">
+    <div class="caption">Sunny Desert</div>
+  </div>
+  <div class="gallery-item">
+    <img src="https://picsum.photos/id/1024/600/400" alt="Image 6">
+    <div class="caption">Ocean Wave</div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <span class="close" onclick="closeLightbox()">&times;</span>
+  <div class="controls">
+    <span onclick="prevImage()">&#10094;</span>
+    <span onclick="nextImage()">&#10095;</span>
+  </div>
+  <img id="lightbox-img" src="" alt="Viewing image">
+</div>
+
+<script>
+  const images = document.querySelectorAll('.gallery img');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  let currentIndex = 0;
+
+  images.forEach((img, index) => {
+    img.addEventListener('click', () => {
+      lightbox.classList.add('active');
+      lightboxImg.src = img.src;
+      currentIndex = index;
+    });
+  });
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+  }
+
+  function showImage(index) {
+    if (index < 0) index = images.length - 1;
+    if (index >= images.length) index = 0;
+    lightboxImg.src = images[index].src;
+    currentIndex = index;
+  }
+
+  function nextImage() {
+    showImage(currentIndex + 1);
+  }
+
+  function prevImage() {
+    showImage(currentIndex - 1);
+  }
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || e.target.classList.contains('close')) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'ArrowRight') nextImage();
+    else if (e.key === 'ArrowLeft') prevImage();
+    else if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+</body>
+</html>
